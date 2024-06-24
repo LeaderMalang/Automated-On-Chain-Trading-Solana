@@ -15,7 +15,7 @@ contract_address = PublicKey(arg_contract_address)
 wallet_keys = arg_wallet_keys
 
 # Connect to Solana cluster
-client = Client("http://127.0.0.1:8899",local="local")
+client = Client("https://api.mainnet-beta.solana.com")
 
 # Define buy amounts and cycles
 buy_amounts = [0.01, 0.02]  # Example buy amounts
