@@ -1,38 +1,38 @@
 import time
-import sys
-from solathon import Client, Transaction, Account
-from solathon.core.instructions import Transfer
+
+from solathon import Client, Transaction, PublicKey, Keypair
+from solathon.core.instructions import transfer
 
 # Check if sufficient arguments are provided
-if len(sys.argv) < 3:
-    print("Usage: python script.py <CONTRACT_ADDRESS> <PRIVATE_KEY_1> [<PRIVATE_KEY_2> ...]")
-    sys.exit(1)
+# if len(sys.argv) < 3:
+#     print("Usage: python script.py <CONTRACT_ADDRESS> <PRIVATE_KEY_1> [<PRIVATE_KEY_2> ...]")
+#     sys.exit(1)
 
 # Get contract address and wallet keys from console arguments
-contract_address = sys.argv[1]
-wallet_keys = sys.argv[2:]
+contract_address = PublicKey("7A5PXgtd29ncaPHp5PzNCYQLNkqSzS79QAcEq2q7ywzt")
+wallet_keys = ["3H2NyCUjUWnJ7c3rredHwxjou6VuJW9dboYTAKdwJtUMQTNYf4w9uGX3Eqr2A2prPW3H3hhje7jW1Rif9JEFU6p7"]
 
 # Connect to Solana cluster
-client = Client("https://api.mainnet-beta.solana.com")
+client = Client("http://127.0.0.1:8899",local="local")
 
 # Define buy amounts and cycles
-buy_amounts = [0.01, 0.02, 0.01, 0.03, 0.01]  # Example buy amounts
+buy_amounts = [0.01, 0.02]  # Example buy amounts
 
 def perform_transactions(wallet_key):
-    wallet = Account(wallet_key)
+    wallet = Keypair().from_private_key(wallet_key)
     for amount in buy_amounts:
         try:
             # Create a transfer transaction to simulate a buy
-            txn = Transaction()
-            transfer_instruction = Transfer(
-                source=wallet.public_key,
-                destination=contract_address,
-                amount=int(amount * 10**9)
+            
+            instruction  = transfer(
+                from_public_key=wallet.public_key,
+                to_public_key=contract_address,
+                lamports=int(amount * 10**9)
             )
-            txn.add(transfer_instruction)
+            transaction  = Transaction(instructions=[instruction], signers=[wallet])
 
             # Send the transaction
-            response = client.send_transaction(txn, wallet)
+            response = client.send_transaction(transaction)
             print(f"Buy {amount} SOL: {response}")
 
             # Wait for confirmation
@@ -42,21 +42,21 @@ def perform_transactions(wallet_key):
 
     try:
         # After buying cycle, simulate a sell (transfer all to contract address)
-        balance = client.get_balance(wallet.public_key)["result"]["value"]
+        balance = client.get_balance(wallet.public_key)
         sell_amount = balance - 5000  # Keep some lamports to cover fees
 
         if sell_amount > 0:
-            txn = Transaction()
-            transfer_instruction = Transfer(
-                source=wallet.public_key,
-                destination=contract_address,
-                amount=sell_amount
+            
+            sell_instruction = transfer(
+                from_public_key=wallet.public_key,
+                to_public_key=contract_address,
+                lamports=sell_amount
             )
-            txn.add(transfer_instruction)
+            sell_transaction  = Transaction(instructions=[sell_instruction], signers=[wallet])
 
             # Send the transaction
-            response = client.send_transaction(txn, wallet)
-            print(f"Sell {sell_amount / 10**9}} SOL: {response}")
+            sell_response = client.send_transaction(sell_transaction)
+            print(f"Sell {sell_amount / 10**9} SOL: {sell_response}")
 
             # Wait for confirmation
             time.sleep(15)
@@ -66,8 +66,8 @@ def perform_transactions(wallet_key):
         print(f"Error during sell transaction: {e}")
 
 # Main loop to run transactions for each wallet
-while True:
+if __name__ == "__main__":
     for wallet_key in wallet_keys:
-        perform_transactions(wallet_key)
-        # Add a delay between each wallet instance to avoid nonce issues
-        time.sleep(30)
+            perform_transactions(wallet_key)
+            # Add a delay between each wallet instance to avoid nonce issues
+            time.sleep(30)
