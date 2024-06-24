@@ -1,16 +1,18 @@
 import time
-
+import sys
 from solathon import Client, Transaction, PublicKey, Keypair
 from solathon.core.instructions import transfer
 
 # Check if sufficient arguments are provided
-# if len(sys.argv) < 3:
-#     print("Usage: python script.py <CONTRACT_ADDRESS> <PRIVATE_KEY_1> [<PRIVATE_KEY_2> ...]")
-#     sys.exit(1)
+if len(sys.argv) < 3:
+    print("Usage: python main.py <CONTRACT_ADDRESS> <PRIVATE_KEY_1> [<PRIVATE_KEY_2> ...]")
+    sys.exit(1)
 
 # Get contract address and wallet keys from console arguments
-contract_address = PublicKey("7A5PXgtd29ncaPHp5PzNCYQLNkqSzS79QAcEq2q7ywzt")
-wallet_keys = ["3H2NyCUjUWnJ7c3rredHwxjou6VuJW9dboYTAKdwJtUMQTNYf4w9uGX3Eqr2A2prPW3H3hhje7jW1Rif9JEFU6p7"]
+arg_contract_address=sys.argv[1]
+arg_wallet_keys=sys.argv[2:]
+contract_address = PublicKey(arg_contract_address)
+wallet_keys = arg_wallet_keys
 
 # Connect to Solana cluster
 client = Client("http://127.0.0.1:8899",local="local")

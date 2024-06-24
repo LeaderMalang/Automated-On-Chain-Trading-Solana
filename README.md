@@ -28,7 +28,7 @@ This project is a Python script that performs automated trading on the Solana bl
 To run the script, you need to provide the contract address and wallet private keys as console arguments.
 
 ```bash
-python trading_script.py <CONTRACT_ADDRESS> <PRIVATE_KEY_1> <PRIVATE_KEY_2> 
+python main.py <CONTRACT_ADDRESS> <PRIVATE_KEY_1> <PRIVATE_KEY_2> 
 
 ```
 
